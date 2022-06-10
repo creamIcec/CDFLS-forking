@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js cube panorama</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	</head>
+	<body  oncontextmenu="return false">
+		<div id="container"></div>
+		<script src="three.js"></script>
+		<script type="text/javascript">
+ 
+			//import * as THREE from './three.module.js';
+			var camera;
+			var renderer;
+			var scene;
+ 
+			init();
+			animate();
+ 
+			function init() {
+ 
+				var container = document.getElementById( 'container' );
+ 
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+ 
+				scene = new THREE.Scene();
+ 
+				camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 100 );
+				camera.position.set(0,0,0);
+				
+				var materials = [];
+				var texturepx = new THREE.TextureLoader().load( 'cubetexture/px.png' );
+				materials.push( new THREE.MeshBasicMaterial( { map: texturepx} ) );
+				var texturenx = new THREE.TextureLoader().load( 'cubetexture/nx.png' );
+				materials.push( new THREE.MeshBasicMaterial( { map: texturenx} ) );	
+				var texturepy = new THREE.TextureLoader().load( 'cubetexture/py.png' );
+				materials.push( new THREE.MeshBasicMaterial( { map: texturepy} ) );
+				var textureny = new THREE.TextureLoader().load( 'cubetexture/ny.png' );
+				materials.push( new THREE.MeshBasicMaterial( { map: textureny} ) );
+				var texturepz = new THREE.TextureLoader().load( 'cubetexture/pz.png' );
+				materials.push( new THREE.MeshBasicMaterial( { map: texturepz} ) );
+				var texturenz = new THREE.TextureLoader().load( 'cubetexture/nz.png' );
+				materials.push( new THREE.MeshBasicMaterial( { map: texturenz} ) );
+ 
+				var skyBox = new THREE.Mesh( new THREE.BoxBufferGeometry( 100, 100, 100 ), materials );
+				skyBox.geometry.scale( 1, 1, - 1 );
+				scene.add( skyBox );
+ 
+				window.addEventListener( 'resize', onWindowResize, false );
+ 
+				var bMouseDown = false;
+				var x = -1;
+				var y =-1;
+				container.onmousedown=function(event){
+					event.preventDefault();
+					x=event.clientX;
+					y=event.clientY;
+					bMouseDown = true;
+				}
+				container.onmouseup=function(event){
+					event.preventDefault();
+					bMouseDown = false;
+				}
+				container.onmousemove=function(event){
+					event.preventDefault();
+					if(bMouseDown)
+					{
+						skyBox.rotation.y += -0.005*(event.clientX-x);
+						skyBox.rotation.x += -0.005*(event.clientY-y);
+						if(skyBox.rotation.x>Math.PI/2)
+						{
+							skyBox.rotation.x = Math.PI/2
+						}
+						if(skyBox.rotation.x<-Math.PI/2)
+						{
+							skyBox.rotation.x = -Math.PI/2
+						}
+						x=event.clientX;
+						y=event.clientY;
+					}
+				}
+				container.onmousewheel=function(event){
+					event.preventDefault();
+					if(event.wheelDelta!=0){
+						camera.fov+=event.wheelDelta>0?1:-1;
+						if(camera.fov>150)
+						{
+						  camera.fov=150;
+						}
+						else if(camera.fov < 30)
+						{
+							camera.fov = 30;
+						}
+						camera.updateProjectionMatrix();
+					}
+				}
+			}
+ 
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+ 
+			function animate() {
+				requestAnimationFrame( animate );
+				renderer.render( scene, camera );
+			}
+ 
+		</script>
+	</body>
+</html>
